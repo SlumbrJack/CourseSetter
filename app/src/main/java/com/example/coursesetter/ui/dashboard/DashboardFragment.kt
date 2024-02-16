@@ -7,7 +7,11 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.viewpager2.widget.ViewPager2
+import com.example.coursesetter.R
+import com.example.coursesetter.StatsViewPagerAdapter
 import com.example.coursesetter.databinding.FragmentDashboardBinding
+import com.google.android.material.tabs.TabLayout
 
 class DashboardFragment : Fragment() {
 
@@ -28,11 +32,28 @@ class DashboardFragment : Fragment() {
         _binding = FragmentDashboardBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textDashboard
-        dashboardViewModel.text.observe(viewLifecycleOwner) {
-            textView.text = it
-        }
+
+        //View code for stats page
+        val statsTabLayout : TabLayout = root.findViewById(R.id.tab_layout)
+        val statsViewPager2 : ViewPager2 = root.findViewById(R.id.view_pager)
+        val statsViewPagerAdapter : StatsViewPagerAdapter = StatsViewPagerAdapter(this)
+        // val onTabSelectedListener : TabLayout.OnTabSelectedListener =  TabLayout.OnTabSelectedListener
+        statsViewPager2.adapter = statsViewPagerAdapter
+        statsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab) {
+                statsViewPager2.currentItem = tab.position
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab) {
+                // Handle tab unselected event
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab) {
+                // Handle tab reselected event
+            }
+        })
         return root
+
     }
 
     override fun onDestroyView() {

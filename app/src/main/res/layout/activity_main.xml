@@ -34,51 +34,7 @@
         app:navGraph="@navigation/mobile_navigation"
         tools:ignore="MissingConstraints" />
 
-    <TextView
-        android:id="@+id/MainTitleText"
-        android:layout_width="319dp"
-        android:layout_height="66dp"
-        android:text="CourseSetter"
-        android:textAlignment="center"
-        android:textSize="50sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.075"
-        tools:ignore="MissingConstraints" />
 
-    <Button
-        android:id="@+id/QuickStartButton"
-        android:layout_width="215dp"
-        android:layout_height="75dp"
-        android:text="Quick Start"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.658" />
 
-    <Button
-        android:id="@+id/GenerateCourseButton"
-        android:layout_width="215dp"
-        android:layout_height="75dp"
-        android:text="Generate Course"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.82" />
-
-    <ImageView
-        android:id="@+id/HomePageLogo"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.287"
-        app:srcCompat="@drawable/silhouette_3199472_640" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
