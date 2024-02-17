@@ -1,7 +1,6 @@
 package com.example.coursesetter
 
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentActivity
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.example.coursesetter.fragments.AllTimeStatsFragment
 import com.example.coursesetter.fragments.MonthStatsFragment
