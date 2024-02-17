@@ -12,11 +12,13 @@ import com.example.coursesetter.R
 import com.example.coursesetter.StatsViewPagerAdapter
 import com.example.coursesetter.databinding.FragmentDashboardBinding
 import com.google.android.material.tabs.TabLayout
+import com.google.android.material.tabs.TabLayoutMediator
+import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
 
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
-
+    val tabTitles = arrayOf("Week", "Month", "All Time")
     // This property is only valid between onCreateView and
     // onDestroyView.
     private val binding get() = _binding!!
@@ -42,6 +44,7 @@ class DashboardFragment : Fragment() {
         statsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 statsViewPager2.currentItem = tab.position
+
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -50,8 +53,13 @@ class DashboardFragment : Fragment() {
 
             override fun onTabReselected(tab: TabLayout.Tab) {
                 // Handle tab reselected event
+                statsViewPager2.currentItem = tab.position
             }
         })
+
+        TabLayoutMediator(statsTabLayout, statsViewPager2) { tab, position ->
+            tab.text = tabTitles[position]
+        }.attach()
         return root
 
     }
