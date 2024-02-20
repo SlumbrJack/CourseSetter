@@ -9,6 +9,7 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.coursesetter.databinding.ActivityMainBinding
 
+// This is my comment (nick was here)//
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
