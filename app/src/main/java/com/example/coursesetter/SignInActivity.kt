@@ -1,21 +1,24 @@
 package com.example.coursesetter
 
+import android.content.ContentValues.TAG
 import android.content.Intent
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.TextView
+import android.util.Log
+import android.widget.Button
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import com.google.android.gms.auth.api.signin.GoogleSignIn
-import com.google.android.gms.auth.api.signin.GoogleSignInClient
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.SignInButton
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.DataSnapshot
+import com.google.firebase.database.DatabaseError
+import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import kotlin.math.sign
+
 
 class SignInActivity : AppCompatActivity() {
     //Predeclared Vars for login vvv
@@ -28,6 +31,7 @@ class SignInActivity : AppCompatActivity() {
         setContentView(R.layout.activity_sign_in)
 
         // LOGIN CODE VVVV
+
         //Get current user from firebase
         auth = FirebaseAuth.getInstance()
         val currentUser = auth.currentUser
@@ -85,7 +89,32 @@ class SignInActivity : AppCompatActivity() {
             .addOnCompleteListener(this) { task ->
                 if (task.isSuccessful) {
                     val user = auth.currentUser
-                    Toast.makeText(this, "Signed in as ${user?.displayName}", Toast.LENGTH_SHORT).show()
+                    val userID = user!!.uid
+                    val email : String? = user.email
+                    //This checks to see if the user has an account in the database
+                    val uidEventListener: ValueEventListener = object : ValueEventListener
+                    {
+                        override fun onDataChange(dataSnapshot: DataSnapshot) {
+                            if (!dataSnapshot.exists()) {
+                                //create new user
+                                Log.d(TAG, "new user")
+                                if (email != null) {
+                                    Firebase.database.getReference("Users").child(userID).child("Email").setValue(email)
+                                    Firebase.database.getReference("Users").child(userID).child("Name").setValue(user.displayName)
+                                }
+                            }
+                            else
+                            {
+                                Log.d(TAG, "returning user")
+                            }
+                        }
+
+                        override fun onCancelled(databaseError: DatabaseError) {
+                            Log.d(TAG, databaseError.message) //Don't ignore errors!
+                        }
+                    }
+                    Firebase.database.reference.child("Users").child(userID).addListenerForSingleValueEvent(uidEventListener)
+
                     startActivity(Intent(this, MainActivity::class.java))
                     finish()
                 } else {
