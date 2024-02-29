@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "601667094278",
+    "project_id": "coursesetter-fad0c",
+    "storage_bucket": "coursesetter-fad0c.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:601667094278:android:965a1bbab1d450e044c087",
+        "android_client_info": {
+          "package_name": "com.example.coursesetter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "601667094278-5jugtlvnpcnfi8qjha452j16k3hns69k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.coursesetter",
+            "certificate_hash": "c0f011aad79ef37f98399cc2fbcae0426a79e315"
+          }
+        },
+        {
+          "client_id": "601667094278-tm4tuhbbmhdurpb4stb9m21v0q4n1c5l.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUith4O1k0mkYnn2ngjIclMnAxFjoc2MM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "601667094278-tm4tuhbbmhdurpb4stb9m21v0q4n1c5l.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
