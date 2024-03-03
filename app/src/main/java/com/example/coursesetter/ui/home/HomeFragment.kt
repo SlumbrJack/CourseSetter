@@ -17,6 +17,10 @@ import com.google.firebase.database.DatabaseError
 import com.google.firebase.database.ValueEventListener
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 class HomeFragment : Fragment() {
 
@@ -94,6 +98,19 @@ class HomeFragment : Fragment() {
                 userRunLocation.child("Steps").setValue("3000")
                 userRunLocation.child("Calories Burned").setValue("200")
                 userRunLocation.child("Time").setValue("20:10")
+
+                //date stuff
+                val c: Calendar = Calendar.getInstance()
+                var d: Date = c.time
+                val df = SimpleDateFormat("dd-MMM-yyyy", Locale.getDefault())
+                //d = Date("09-Mar-2024")
+                //c.time = d
+
+                val formattedDate: String = df.format(d)
+                userRunLocation.child("Date").setValue(formattedDate)
+
+                val dayOfWeek = c.get(Calendar.DAY_OF_WEEK)
+                userRunLocation.child("Day").setValue(dayOfWeek)
             }
         }
     }
