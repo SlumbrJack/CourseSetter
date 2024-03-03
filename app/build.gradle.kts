@@ -10,7 +10,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.coursesetter"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -36,6 +36,10 @@ android {
     }
     buildFeatures {
         viewBinding = true
+        compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.9"
     }
 }
 
@@ -62,5 +66,12 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.2"))
     implementation("com.google.firebase:firebase-database")
 
+    //compose / linegraph
+    implementation("co.yml:ycharts:2.1.0")
+    val composeBom = platform("androidx.compose:compose-bom:2024.02.01")
+    implementation(composeBom)
+    androidTestImplementation(composeBom)
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
 
 }
