@@ -29,7 +29,8 @@ class MainActivity : AppCompatActivity() {
 
         // Set of top-level destinations in the bottom nav
         val topLevelDestinations = setOf(
-            R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications
+            R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications,
+
         )
 
         appBarConfiguration = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)

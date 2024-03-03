@@ -13,10 +13,26 @@
         android:id="@+id/homeFragment"
         android:name="com.example.coursesetter.ui.home.HomeFragment"
         android:label="Home"
-        tools:layout="@layout/fragment_home" />
+        tools:layout="@layout/fragment_home" >
+        <action
+            android:id="@+id/nav_Course2"
+            app:destination="@id/allTimeStatsFragment" />
+    </fragment>
     <fragment
         android:id="@+id/notificationsFragment"
         android:name="com.example.coursesetter.ui.notifications.NotificationsFragment"
         android:label="fragment_notifications"
         tools:layout="@layout/fragment_notifications" />
+    <action
+        android:id="@+id/nav_Home2"
+        app:destination="@id/homeFragment" />
+    <fragment
+        android:id="@+id/allTimeStatsFragment"
+        android:name="com.example.coursesetter.fragments.AllTimeStatsFragment"
+        android:label="fragment_all_time_stats"
+        tools:layout="@layout/fragment_all_time_stats" />
+    <action
+        android:id="@+id/action_global_allTimeStatsFragment"
+        app:destination="@id/allTimeStatsFragment"
+        app:popUpTo="@id/homeFragment" />
 </navigation>

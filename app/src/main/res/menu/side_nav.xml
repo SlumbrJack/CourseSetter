@@ -10,7 +10,9 @@
         android:id="@+id/nav_Course"
         android:title="Course"/>
 
-    <item android:title="Stats" />
+    <item
+        android:id="@+id/allStates"
+        android:title="Stats" />
 
     <item android:title="Settings" />
 

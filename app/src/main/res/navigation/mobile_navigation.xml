@@ -19,7 +19,13 @@
 
     <fragment
         android:id="@+id/navigation_notifications"
+        android:name="com.example.coursesetter.fragments.notificationsFragment"
+        android:label="notifications"
+        tools:layout="@layout/fragment_notifications" />
+
+    <fragment
+        android:id="@+id/navigation_settings"
         android:name="com.example.coursesetter.fragments.SettingsFragment"
         android:label="Settings"
-        tools:layout="@layout/fragment_notifications" />
+        tools:layout="@layout/fragment_settings" />
 </navigation>
