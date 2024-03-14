@@ -30,7 +30,7 @@ class MainActivity : AppCompatActivity() {
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
-        // Setup for (Side Navigation)
+        // Setup for (Side Nav)
         val drawerNavView: NavigationView = binding.sideNavigation
         drawerNavView.setupWithNavController(navController)
 
@@ -52,11 +52,12 @@ class MainActivity : AppCompatActivity() {
 
                 R.id.navigation_settings -> {
                     // Handle navigation to the notifications destination
+                    navController.navigate(R.id.navigation_settings)
 
                 }
-                // Add cases for other menu items as needed
+
                 else -> {
-                    // Handle default case or any other menu item not explicitly handled
+                    // Handle everything else
                 }
             }
             menuItem.isChecked = true

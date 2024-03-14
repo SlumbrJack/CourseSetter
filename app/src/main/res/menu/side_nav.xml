@@ -19,7 +19,7 @@
         android:title="Stats" />
 
     <item
-
+        android:id="@+id/navigation_settings"
         android:icon="@drawable/settings_image"
         android:title="Settings"/>
 
