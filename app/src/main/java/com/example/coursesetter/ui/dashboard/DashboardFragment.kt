@@ -43,6 +43,7 @@ class DashboardFragment : Fragment() {
         val statsViewPagerAdapter : StatsViewPagerAdapter = StatsViewPagerAdapter(this)
         // val onTabSelectedListener : TabLayout.OnTabSelectedListener =  TabLayout.OnTabSelectedListener
         statsViewPager2.adapter = statsViewPagerAdapter
+        statsViewPager2.isUserInputEnabled = false
         statsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 statsViewPager2.currentItem = tab.position

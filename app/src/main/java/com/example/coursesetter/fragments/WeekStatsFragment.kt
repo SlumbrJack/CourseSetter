@@ -1,5 +1,6 @@
 package com.example.coursesetter.fragments
 
+
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -19,10 +20,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
-import androidx.core.view.get
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation.findNavController
-import androidx.navigation.findNavController
+import androidx.fragment.app.FragmentManager
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
@@ -37,19 +36,17 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.R
+import com.example.coursesetter.ui.dashboard.DashboardFragment
+import com.example.coursesetter.ui.home.HomeFragment
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-import java.text.SimpleDateFormat
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.TemporalAdjusters
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
-import androidx.navigation.findNavController
-import androidx.navigation.fragment.findNavController
 
 
 // TODO: Rename parameter arguments, choose names that match
@@ -58,11 +55,10 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 private lateinit var userID: String
 var distArray = intArrayOf(6,6,6,6,6,6,6)
-var floatArray = floatArrayOf(6f,6f,6f,6f,6f,6f,6f)
-
+var floatArray = floatArrayOf(0f,0f,0f,0f,0f,0f,0f)
+var highestRun = 0
 
 class WeekStatsFragment : Fragment() {
-
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -82,7 +78,7 @@ class WeekStatsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //val database = Firebase.database
-        WeekRunDists()
+
         val composeView = view.findViewById<ComposeView>(R.id.lineChartComposeView)
         composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
@@ -94,6 +90,7 @@ class WeekStatsFragment : Fragment() {
                     contentAlignment = Alignment.Center
                 )
                 {
+
                     Log.e("BUG", "CHART FILLED")
                     LineChartScreen() //When this is called it displays the graph with the data from the array.
                 }
@@ -110,20 +107,20 @@ class WeekStatsFragment : Fragment() {
 
     @Composable
     fun LineChartScreen() {
-
-        WeekRunDists()
         val dayOfWeekArray = arrayOf("M", "T", "W", "Th", "F", "S", "Su")
         val steps = 6
-        val pointsData = listOf(
-            Point(0f, 1f + floatArray[0]),
-            Point(1f, 1f + floatArray[1]),
-            Point(2f, 1f + floatArray[2]),
-            Point(3f, 1f + floatArray[3]),
-            Point(4f, 1f + floatArray[4]),
-            Point(5f, 1f + floatArray[5]),
-            Point(6f, 2f + floatArray[6])
+
+        val pointsData = mutableListOf(
+            Point(0f, floatArray[0]),
+            Point(1f,  floatArray[1]),
+            Point(2f, floatArray[2]),
+            Point(3f,  floatArray[3]),
+            Point(4f,  floatArray[4]),
+            Point(5f,  floatArray[5]),
+            Point(6f,  floatArray[6])
         )
-        Log.e("BUG", "POINTS FILLED")
+
+        Log.e("BUG", "highest run $highestRun")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
@@ -131,18 +128,17 @@ class WeekStatsFragment : Fragment() {
             .labelAndAxisLinePadding(15.dp)
             //.startDrawPadding(10.dp) Fixes cutoff but messes up points
             //.startPadding(10.dp)
-
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
             .axisStepSize(50.dp)
             .build()
         val yAxisData = AxisData.Builder()
-            .steps(steps)
+            .steps(highestRun)
             .backgroundColor(Color.Transparent)
             .labelAndAxisLinePadding(25.dp)
             .labelData { i ->
-                val yScale = 90 / steps
-                (i * yScale).toString()
+                val yScale = highestRun / 1
+                (i).toString()
             }
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
@@ -182,13 +178,15 @@ class WeekStatsFragment : Fragment() {
             bottomPadding = 20.dp,
             paddingRight = 10.dp,
             containerPaddingEnd = 15.dp,
-        )
+
+            )
         LineChart(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(350.dp),
             lineChartData = lineChartData
         )
+
     }
 
     fun WeekRunDists() {
@@ -211,40 +209,47 @@ class WeekStatsFragment : Fragment() {
         var totalRuns = 0
         Firebase.database.getReference("Users Runs").child("Users").child(userID)
             .child("Total Runs").get().addOnSuccessListener {
-            Log.e("dist", "total runs is ${it.value}")
-            totalRuns = it.value.toString().toInt()
-            for (i in 1..totalRuns) {
-                Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                    .child("$i").child("Date").get().addOnSuccessListener {
-                    dbDate = LocalDate.parse(it.value.toString(), formatter)
-                    //Log.e("date", "Date is $dbDate")
-                    if (dbDate.isAfter(firstDay)) {
-                        //Get distance ran and day of week
-                        var dayOfWeekValue = date.dayOfWeek.value
+                Log.e("dist", "total runs is ${it.value}")
+                totalRuns = it.value.toString().toInt()
+                for (i in 1..totalRuns) {
+                    Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                        .child("$i").child("Date").get().addOnSuccessListener {
+                            dbDate = LocalDate.parse(it.value.toString(), formatter)
+                            //Log.e("date", "Date is $dbDate")
+                            if (dbDate.isAfter(firstDay)) {
+                                //Get distance ran and day of week
+                                var dayOfWeekValue = dbDate.dayOfWeek.value
 
-                        Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                            .child("$i").child("Distance").get().addOnSuccessListener {
-                            distRan = it.value.toString().toInt()
-                            Log.e("dist", "dist is $distRan")
-                            floatArray[dayOfWeekValue - 1] += distRan.toFloat()
-                            runNum++
+                                Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                    .child("$i").child("Distance").get().addOnSuccessListener {
+                                        distRan = it.value.toString().toInt()
+                                        Log.e("dist", "dist is $distRan")
+                                        floatArray[dayOfWeekValue - 1] = distRan.toFloat()
+                                        runNum++
+                                        if(distRan > highestRun){
+                                            highestRun = distRan
+                                            Log.e("firebase", "$dayOfWeekValue $highestRun")
+                                        }
+                                    }.addOnFailureListener {
+                                        Log.e("firebase", "Error getting data", it)
+                                    }
+
+
+                            }
                         }.addOnFailureListener {
                             Log.e("firebase", "Error getting data", it)
+                            keepChecking = false
+
                         }
-                    }
-                }.addOnFailureListener {
-                    Log.e("firebase", "Error getting data", it)
-                    keepChecking = false
                 }
+            }.addOnFailureListener {
+                Log.e("firebase", "Error getting data", it)
             }
-        }.addOnFailureListener {
-            Log.e("firebase", "Error getting data", it)
-        }
 
 
         Log.e("firebase", "Runs ${floatArray[6]}")
         Log.e("BUG", "DB DONE")
-
+}
     }
 
-}
+
