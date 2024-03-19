@@ -54,6 +54,12 @@ class SignInActivity : AppCompatActivity() {
             startActivity(Intent(this, MainActivity::class.java))
             finish()
         }
+        //if skip to map is pressed, moves to the MapsActivity
+        val mapButton = findViewById<Button>(R.id.mapButton)
+        mapButton.setOnClickListener {
+            val Intent = Intent(this, MapsActivity::class.java)
+            startActivity(Intent)
+        }
     }
     //Starts the sign in process, starts the signin intent and sends the results to onActivityResult
     private fun signIn() {
