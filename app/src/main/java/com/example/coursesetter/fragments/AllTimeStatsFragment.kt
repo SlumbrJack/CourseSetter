@@ -34,6 +34,7 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
@@ -114,13 +115,13 @@ class AllTimeStatsFragment : Fragment() {
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
-            .labelData { i -> i.toString() }
+            //.labelData { i -> i.toString() }
             .labelAndAxisLinePadding(15.dp)
             //.startDrawPadding(10.dp) Fixes cutoff but messes up points
             //.startPadding(10.dp)
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-            .axisStepSize(50.dp)
+            .axisStepSize((350/pointsData.size).dp)
             .build()
         val yAxisData = AxisData.Builder()
             .steps(highestRun)
@@ -143,7 +144,8 @@ class AllTimeStatsFragment : Fragment() {
                             lineType = LineType.SmoothCurve(isDotted = false)
                         ),
                         IntersectionPoint(
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.tertiary,
+                            alpha = 0.0f
                         ),
                         SelectionHighlightPoint(color = MaterialTheme.colorScheme.primary),
                         ShadowUnderLine(
@@ -162,7 +164,7 @@ class AllTimeStatsFragment : Fragment() {
             backgroundColor = MaterialTheme.colorScheme.surface,
             xAxisData = xAxisData,
             yAxisData = yAxisData,
-            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant),
+            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant, enableVerticalLines = false),
             isZoomAllowed = false,
             paddingTop = 30.dp,
             bottomPadding = 20.dp,
@@ -182,149 +184,192 @@ class AllTimeStatsFragment : Fragment() {
     }
 
     fun AllTimeRunDists() {
-
+        floatListAll.clear()
+        var DBRunDistances = (activity as MainActivity).DBRunDistances
+        var DBRunDates = (activity as MainActivity).DBRunDates
+        var totalRuns = DBRunDistances.size
         val date: LocalDate = LocalDate.now()
         var dbDate: LocalDate = date
 
         val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
         var distRan = 0f
-        var totalRuns = 0
-        var oldestDate = date
+
+        var oldestDate = DBRunDates[0]
         var noDateFound = false
+        var increment = 1
+        for(i in 1..(totalRuns -1)){
+            noDateFound = false
+            dbDate = DBRunDates[i]
+            Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
+            if(oldestDate.plusDays(1).isEqual(dbDate))
+            {
+                distRan = DBRunDistances[i]
+                floatListAll.add(distRan)
+                increment++
 
+            }
+            else{
 
-        Firebase.database.getReference("Users Runs").child("Users").child(userID)
-            .child("Total Runs").get().addOnSuccessListener {
+                while(!noDateFound){
 
-                Log.e("AllStats", "total runs is ${it.value}")
-                totalRuns = it.value.toString().toInt()
-
-
-            }.addOnFailureListener {
-                Log.e("firebase", "Error getting data", it)
-            }.addOnCompleteListener {
-
-                Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                    .child("1").child("Date").get().addOnSuccessListener {
-
-                        dbDate = LocalDate.parse(it.value.toString(), formatter)
+                    if(oldestDate.plusDays(increment.toLong()).isEqual(dbDate))
+                    {
+                        noDateFound = true
+                        Log.e("DEBUG- Alltime- True Checked", "${oldestDate.plusDays(increment.toLong()).isEqual(dbDate)}")
+                        distRan = DBRunDistances[i]
+                        floatListAll.add(distRan)
+                        Log.e("Alltime", "Date added after $increment extra runs: $dbDate")
+                        Log.e("DEBUG- Alltime- Added Full", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+                        increment = 1
                         oldestDate = dbDate
 
-                        Firebase.database.getReference("Users Runs").child("Users")
-                                .child(userID).child("1").child("Distance").get().addOnSuccessListener {
-                                    distRan = it.value.toString().toFloat()
-                                    floatListAll.add(distRan)
-                                    Log.e("Alltime", "First Date: $dbDate")
+                    }
+                    else{
+                        floatListAll.add(0f)
+                        increment++
+                        Log.e("Alltime", "Added empty: ${oldestDate.plusDays(increment.toLong())}")
+                        Log.e("DEBUG- Alltime- Add Empty", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+                    }
+                }
 
-                                }.addOnCompleteListener {
-                                var increment = 1
-                                for (i in 2..totalRuns) {
-                                noDateFound = false
-                                    Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                                        .child("$i").child("Date").get().addOnSuccessListener {
-                                            dbDate = LocalDate.parse(it.value.toString(), formatter)
-                                            noDateFound = false
-                                            Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
+            }
+
+        }
 
 
+        /*
+                Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                    .child("Total Runs").get().addOnSuccessListener {
 
-                                                if(oldestDate.plusDays(1).isEqual(dbDate))
-                                                {
-                                                    Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                                                        .child("$i").child("Distance").get().addOnSuccessListener {
-                                                            distRan = it.value.toString().toFloat()
-                                                            floatListAll.add(distRan)
-                                                            increment++
-                                                        }
-                                                }
-                                                else{
+                        Log.e("AllStats", "total runs is ${it.value}")
+                        totalRuns = it.value.toString().toInt()
 
-                                                    while(!noDateFound){
 
-                                                        if(oldestDate.plusDays(increment.toLong()).isEqual(dbDate))
+                    }.addOnFailureListener {
+                        Log.e("firebase", "Error getting data", it)
+                    }.addOnCompleteListener {
+
+                        Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                            .child("1").child("Date").get().addOnSuccessListener {
+
+                                dbDate = LocalDate.parse(it.value.toString(), formatter)
+                                oldestDate = dbDate
+
+                                Firebase.database.getReference("Users Runs").child("Users")
+                                        .child(userID).child("1").child("Distance").get().addOnSuccessListener {
+                                            distRan = it.value.toString().toFloat()
+                                            floatListAll.add(distRan)
+                                            Log.e("Alltime", "First Date: $dbDate")
+
+                                        }.addOnCompleteListener {
+                                        var increment = 1
+                                        for (i in 2..totalRuns) {
+                                        noDateFound = false
+                                            Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                                .child("$i").child("Date").get().addOnSuccessListener {
+                                                    dbDate = LocalDate.parse(it.value.toString(), formatter)
+                                                    noDateFound = false
+                                                    Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
+
+
+
+                                                        if(oldestDate.plusDays(1).isEqual(dbDate))
                                                         {
-                                                            noDateFound = true
-                                                            Log.e("DEBUG- Alltime- True Checked", "${oldestDate.plusDays(increment.toLong()).isEqual(dbDate)}")
                                                             Firebase.database.getReference("Users Runs").child("Users").child(userID)
                                                                 .child("$i").child("Distance").get().addOnSuccessListener {
                                                                     distRan = it.value.toString().toFloat()
-
-                                                                }.addOnCompleteListener {
                                                                     floatListAll.add(distRan)
-
-                                                                    Log.e("Alltime", "Date added after $increment extra runs: $dbDate")
-                                                                    Log.e("DEBUG- Alltime- Added Full", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
                                                                     increment++
                                                                 }
                                                         }
                                                         else{
-                                                            floatListAll.add(0f)
-                                                            increment++
-                                                            Log.e("Alltime", "Added empty: ${oldestDate.plusDays(increment.toLong())}")
-                                                            Log.e("DEBUG- Alltime- Add Empty", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+
+                                                            while(!noDateFound){
+
+                                                                if(oldestDate.plusDays(increment.toLong()).isEqual(dbDate))
+                                                                {
+                                                                    noDateFound = true
+                                                                    Log.e("DEBUG- Alltime- True Checked", "${oldestDate.plusDays(increment.toLong()).isEqual(dbDate)}")
+                                                                    Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                                                        .child("$i").child("Distance").get().addOnSuccessListener {
+                                                                            distRan = it.value.toString().toFloat()
+
+                                                                        }.addOnCompleteListener {
+                                                                            floatListAll.add(distRan)
+
+                                                                            Log.e("Alltime", "Date added after $increment extra runs: $dbDate")
+                                                                            Log.e("DEBUG- Alltime- Added Full", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+                                                                            increment++
+                                                                        }
+                                                                }
+                                                                else{
+                                                                    floatListAll.add(0f)
+                                                                    increment++
+                                                                    Log.e("Alltime", "Added empty: ${oldestDate.plusDays(increment.toLong())}")
+                                                                    Log.e("DEBUG- Alltime- Add Empty", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+                                                                }
+                                                            }
+
                                                         }
-                                                    }
-
-                                                }
 
 
-                                        }.addOnFailureListener {Log.e("firebase", "Error getting data", it)}
-                                }
+                                                }.addOnFailureListener {Log.e("firebase", "Error getting data", it)}
+                                        }
+                                    }
+
                             }
 
-                    }
 
 
 
 
 
-                /*
-                /// ORIGINAL
-                        Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                            .child("Total Runs").get().addOnSuccessListener {
+                        /// ORIGINAL
+                                Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                    .child("Total Runs").get().addOnSuccessListener {
 
-                                Log.e("AllStats", "total runs is ${it.value}")
-                                totalRuns = it.value.toString().toInt()
-                                for (i in 1..totalRuns) {
+                                        Log.e("AllStats", "total runs is ${it.value}")
+                                        totalRuns = it.value.toString().toInt()
+                                        for (i in 1..totalRuns) {
 
-                                    Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                                        .child("$i").child("Date").get().addOnSuccessListener {
+                                            Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                                .child("$i").child("Date").get().addOnSuccessListener {
 
-                                            dbDate = LocalDate.parse(it.value.toString(), formatter)
-                                            if(i == 1)
-                                            {
-                                                oldestDate = dbDate
-                                                ChronoUnit.DAYS.between(oldestDate, date)
-                                            }
-                                            ChronoUnit.DAYS.between(oldestDate, date)
-                                            //Log.e("date", "Date is $dbDate")
-                                            var daysDifference = ChronoUnit.DAYS.between(oldDays, dbDate)
-                                            if(daysDifference >= 0)
-                                            {
-                                                Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
-                                                Firebase.database.getReference("Users Runs").child("Users").child(userID)
-                                                    .child("$i").child("Distance").get().addOnSuccessListener {
-
-                                                        distRan = it.value.toString().toInt()
-                                                        Log.e("dist", "dist is $distRan")
-                                                        floatListAll[daysDifference.toInt()] = distRan.toFloat()
-
-                                                        if(distRan > highestRun){
-                                                            highestRun = distRan
-                                                            Log.e("MonthStats", "$daysDifference new record $highestRun")
-                                                        }
-                                                    }.addOnFailureListener {
-                                                        Log.e("firebase", "Error getting data", it)
+                                                    dbDate = LocalDate.parse(it.value.toString(), formatter)
+                                                    if(i == 1)
+                                                    {
+                                                        oldestDate = dbDate
+                                                        ChronoUnit.DAYS.between(oldestDate, date)
                                                     }
-                                            }
+                                                    ChronoUnit.DAYS.between(oldestDate, date)
+                                                    //Log.e("date", "Date is $dbDate")
+                                                    var daysDifference = ChronoUnit.DAYS.between(oldDays, dbDate)
+                                                    if(daysDifference >= 0)
+                                                    {
+                                                        Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
+                                                        Firebase.database.getReference("Users Runs").child("Users").child(userID)
+                                                            .child("$i").child("Distance").get().addOnSuccessListener {
+
+                                                                distRan = it.value.toString().toInt()
+                                                                Log.e("dist", "dist is $distRan")
+                                                                floatListAll[daysDifference.toInt()] = distRan.toFloat()
+
+                                                                if(distRan > highestRun){
+                                                                    highestRun = distRan
+                                                                    Log.e("MonthStats", "$daysDifference new record $highestRun")
+                                                                }
+                                                            }.addOnFailureListener {
+                                                                Log.e("firebase", "Error getting data", it)
+                                                            }
+                                                    }
 
 
-                                        }.addOnFailureListener {
-                                            Log.e("firebase", "Error getting data", it)
+                                                }.addOnFailureListener {
+                                                    Log.e("firebase", "Error getting data", it)
+                                                }
                                         }
-                                }
-                            }.addOnFailureListener {
-                                Log.e("firebase", "Error getting data", it)
-                         */   }
+                                    }.addOnFailureListener {
+                                        Log.e("firebase", "Error getting data", it)
+                                    }*/
     }
 }

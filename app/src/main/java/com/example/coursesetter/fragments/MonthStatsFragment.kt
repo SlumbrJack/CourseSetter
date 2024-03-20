@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.collection.intListOf
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
@@ -36,6 +37,7 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.ktx.database
@@ -120,13 +122,15 @@ class MonthStatsFragment : Fragment() {
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
-            .labelData { i -> i.toString() }
-            .labelAndAxisLinePadding(15.dp)
-            //.startDrawPadding(10.dp) Fixes cutoff but messes up points
-            //.startPadding(10.dp)
+            .labelData { i ->
+                if(i % 5 == 0){i.toString()}
+                else{" "}
+                 }
+            //.labelAndAxisLinePadding(15.dp)
+
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-            .axisStepSize(50.dp)
+            .axisStepSize(11.dp)
             .build()
         val yAxisData = AxisData.Builder()
             .steps(highestRun)
@@ -149,7 +153,8 @@ class MonthStatsFragment : Fragment() {
                             lineType = LineType.SmoothCurve(isDotted = false)
                         ),
                         IntersectionPoint(
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.tertiary,
+                            alpha = 0.0f
                         ),
                         SelectionHighlightPoint(color = MaterialTheme.colorScheme.primary),
                         ShadowUnderLine(
@@ -169,18 +174,18 @@ class MonthStatsFragment : Fragment() {
             xAxisData = xAxisData,
             yAxisData = yAxisData,
             gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant),
-            isZoomAllowed = false,
-            paddingTop = 30.dp,
-            bottomPadding = 20.dp,
-            paddingRight = 10.dp,
-            containerPaddingEnd = 15.dp,
+            isZoomAllowed = true,
+            //paddingTop = 30.dp,
+           // bottomPadding = 20.dp,
+            //paddingRight = 10.dp,
+            //containerPaddingEnd = 15.dp,
 
 
             )
         LineChart(
             modifier = Modifier
                 //.fillMaxWidth()
-                .width(500.dp)
+                .fillMaxWidth()
                 .height(350.dp),
             lineChartData = lineChartData
         )
@@ -189,15 +194,46 @@ class MonthStatsFragment : Fragment() {
 
     fun MonthRunDists() {
 
+        var DBRunDistances = (activity as MainActivity).DBRunDistances
+        var DBRunDates = (activity as MainActivity).DBRunDates
+        var totalRuns = DBRunDistances.size
+
         val date: LocalDate = LocalDate.now()
         var dbDate: LocalDate = date
         val firstDay: LocalDate =
             LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
         var distRan = 0
-        var totalRuns = 0
+
         var oldDays = date.minusDays(30)
-        Log.e("MonthStats","date $oldDays")
+        Log.e("MonthStats","30 Days Ago: $oldDays")
+
+
+        for(i in 0..(totalRuns -1)){
+            dbDate = DBRunDates[i]
+            Log.e("MonthStats", "Date is $dbDate")
+            var daysDifference = ChronoUnit.DAYS.between(oldDays, dbDate)
+            if(daysDifference >= 0) {
+                Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
+                distRan = DBRunDistances[i].toInt()
+                floatArrayMonth[daysDifference.toInt()] = distRan.toFloat()
+                if(distRan > highestRun){
+                    highestRun = distRan
+                    Log.e("MonthStats", "$daysDifference new record $highestRun")
+                }
+            }
+
+        }
+
+
+
+/*
+
+
+
+
+
+
 
         Firebase.database.getReference("Users Runs").child("Users").child(userID)
             .child("Total Runs").get().addOnSuccessListener {
@@ -238,7 +274,7 @@ class MonthStatsFragment : Fragment() {
                 }
             }.addOnFailureListener {
                 Log.e("firebase", "Error getting data", it)
-            }
+            } */
     }
 }
 

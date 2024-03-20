@@ -35,6 +35,7 @@ import co.yml.charts.ui.linechart.model.LineType
 import co.yml.charts.ui.linechart.model.SelectionHighlightPoint
 import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
+import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.example.coursesetter.ui.dashboard.DashboardFragment
 import com.example.coursesetter.ui.home.HomeFragment
@@ -70,7 +71,7 @@ class WeekStatsFragment : Fragment() {
 
         val view = inflater.inflate(R.layout.fragment_week_stats, container, false)
 
-
+        //Log.e("RAAAAA","${(activity as MainActivity).RunDatabaseQuery()}")
         return view
     }
 
@@ -78,6 +79,13 @@ class WeekStatsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         //val database = Firebase.database
+
+        var testString = ""
+        for(i in (activity as MainActivity).DBRunDistances){
+            testString += " $i"
+        }
+        Log.e("AAAAA", testString)
+
 
         val composeView = view.findViewById<ComposeView>(R.id.lineChartComposeView)
         composeView.apply {
@@ -153,7 +161,8 @@ class WeekStatsFragment : Fragment() {
                             lineType = LineType.SmoothCurve(isDotted = false)
                         ),
                         IntersectionPoint(
-                            color = MaterialTheme.colorScheme.tertiary
+                            color = MaterialTheme.colorScheme.tertiary,
+                            alpha = 0.0f
                         ),
                         SelectionHighlightPoint(color = MaterialTheme.colorScheme.primary),
                         ShadowUnderLine(
@@ -190,14 +199,14 @@ class WeekStatsFragment : Fragment() {
     }
 
     fun WeekRunDists() {
+        var DBRunDistances = (activity as MainActivity).DBRunDistances
+        var DBRunDates = (activity as MainActivity).DBRunDates
+        var totalRuns = DBRunDistances.size
+
         var runNum = 1
 
         var keepChecking = true
-        // if(dbDate.time.compareTo(firstDayOfWeek))
-        //{
 
-        // }
-        // NEW
         val date: LocalDate = LocalDate.now()
         var dbDate: LocalDate = date
         //most recent monday
@@ -206,7 +215,25 @@ class WeekStatsFragment : Fragment() {
 
         val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
         var distRan = 0
-        var totalRuns = 0
+
+        //NEW STUFF
+        for(i in 0..(totalRuns - 1)){
+            dbDate = DBRunDates[i]
+
+            //Log.e("Week", " current $dbDate first $firstDay")
+            if(dbDate.isAfter(firstDay) or dbDate.isEqual(firstDay)){
+                var dayOfWeekValue = dbDate.dayOfWeek.value
+                floatArray[dayOfWeekValue - 1] = DBRunDistances[i]
+                distRan = DBRunDistances[i].toInt()
+                if(distRan > highestRun){
+                    highestRun = distRan
+                   // Log.e("Week", "Day: $dayOfWeekValue Highest: $highestRun")
+                }
+            }
+        }
+
+/*
+        //OLD STUFF
         Firebase.database.getReference("Users Runs").child("Users").child(userID)
             .child("Total Runs").get().addOnSuccessListener {
                 Log.e("dist", "total runs is ${it.value}")
@@ -245,9 +272,13 @@ class WeekStatsFragment : Fragment() {
             }.addOnFailureListener {
                 Log.e("firebase", "Error getting data", it)
             }
+*/
+        var testString = ""
+        for(i in floatArray){
+            testString += " $i"
+        }
+        Log.e("AAAAA", testString)
 
-
-        Log.e("firebase", "Runs ${floatArray[6]}")
         Log.e("BUG", "DB DONE")
 }
     }
