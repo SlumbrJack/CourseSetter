@@ -6,12 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.collection.FloatList
+
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -37,13 +38,8 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -51,6 +47,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 var floatListAll = mutableListOf<Float>()
 private lateinit var userID: String
+var highestRun = 0
 /**
  * A simple [Fragment] subclass.
  * Use the [AllTimeStatsFragment.newInstance] factory method to
@@ -86,7 +83,7 @@ class AllTimeStatsFragment : Fragment() {
                 {
 
                     Log.e("BUG", "CHART FILLED")
-                    LineChartScreenMonth() //When this is called it displays the graph with the data from the array.
+                    LineChartScreenAll() //When this is called it displays the graph with the data from the array.
                 }
 
                 // In Compose world
@@ -99,7 +96,8 @@ class AllTimeStatsFragment : Fragment() {
 
     }
     @Composable
-    fun LineChartScreenMonth() {
+    fun LineChartScreenAll() {
+        AllTimeRunDists()
         val steps = 6
 
         val pointsData = mutableListOf(
@@ -111,14 +109,12 @@ class AllTimeStatsFragment : Fragment() {
         }
 
 
-        Log.e("BUG", "highest run $highestRun")
+        Log.e("AllTime", "highest run $highestRun")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
             //.labelData { i -> i.toString() }
             .labelAndAxisLinePadding(15.dp)
-            //.startDrawPadding(10.dp) Fixes cutoff but messes up points
-            //.startPadding(10.dp)
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
             .axisStepSize((350/pointsData.size).dp)
@@ -165,18 +161,14 @@ class AllTimeStatsFragment : Fragment() {
             xAxisData = xAxisData,
             yAxisData = yAxisData,
             gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant, enableVerticalLines = false),
-            isZoomAllowed = false,
-            paddingTop = 30.dp,
-            bottomPadding = 20.dp,
-            paddingRight = 10.dp,
-            containerPaddingEnd = 15.dp,
+            isZoomAllowed = false
 
 
             )
         LineChart(
             modifier = Modifier
                 //.fillMaxWidth()
-                .width(500.dp)
+                .fillMaxWidth()
                 .height(350.dp),
             lineChartData = lineChartData
         )
@@ -200,11 +192,16 @@ class AllTimeStatsFragment : Fragment() {
         for(i in 1..(totalRuns -1)){
             noDateFound = false
             dbDate = DBRunDates[i]
-            Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
+            if(distRan > highestRun){
+                Log.e("AllTime", "Highest Updated to: $distRan")
+                highestRun = distRan.toInt()
+            }
+            //Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
             if(oldestDate.plusDays(1).isEqual(dbDate))
             {
                 distRan = DBRunDistances[i]
                 floatListAll.add(distRan)
+
                 increment++
 
             }
@@ -215,11 +212,12 @@ class AllTimeStatsFragment : Fragment() {
                     if(oldestDate.plusDays(increment.toLong()).isEqual(dbDate))
                     {
                         noDateFound = true
-                        Log.e("DEBUG- Alltime- True Checked", "${oldestDate.plusDays(increment.toLong()).isEqual(dbDate)}")
+                        //Log.e("DEBUG- Alltime- True Checked", "${oldestDate.plusDays(increment.toLong()).isEqual(dbDate)}")
                         distRan = DBRunDistances[i]
                         floatListAll.add(distRan)
-                        Log.e("Alltime", "Date added after $increment extra runs: $dbDate")
-                        Log.e("DEBUG- Alltime- Added Full", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+
+                        //Log.e("Alltime", "Date added after $increment extra runs: $dbDate")
+                       // Log.e("DEBUG- Alltime- Added Full", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
                         increment = 1
                         oldestDate = dbDate
 

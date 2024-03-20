@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.example.coursesetter.databinding.FragmentHomeBinding
 
@@ -34,7 +35,7 @@ class HomeFragment : Fragment() {
     private var _binding: FragmentHomeBinding? = null
 
     val date: LocalDate = LocalDate.now()
-    var dbDate: LocalDate = date
+
     val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
 
     var totalRuns: Int = 4
@@ -120,10 +121,48 @@ class HomeFragment : Fragment() {
     }
 
     fun FoundMatch(){
-
+        var dbDate: LocalDate
         val dbLocation = Firebase.database.getReference("Users Runs").child("Users").child(userID)
         var foundMatch = false
-        for (i in 1..totalRuns) {
+        var DBRunDistances = (activity as MainActivity).DBRunDistances
+        var DBRunDates = (activity as MainActivity).DBRunDates
+        var totalRuns = DBRunDistances.size
+        for (i in 0..totalRuns - 1) {
+            dbDate = DBRunDates[i]
+            if (dbDate.isEqual(date)){
+                Log.e("Home", "$dbDate = $date, ${DBRunDistances[i]}")
+                foundMatch = true
+                DBRunDistances[i] = DBRunDistances[i] + Random.nextInt(1,5)
+                dbLocation.child("${i+1}").child("Distance").setValue(DBRunDistances[i])
+            }
+            if(i == totalRuns-1)
+            {
+                if(!foundMatch){
+                    totalRuns++
+
+                    dbLocation.child("Total Runs").setValue(totalRuns)
+                    val userRunLocation = dbLocation.child("$totalRuns")
+
+                    userRunLocation.child("Distance").setValue("3")
+                    userRunLocation.child("Steps").setValue("3000")
+                    userRunLocation.child("Calories Burned").setValue("200")
+                    userRunLocation.child("Time").setValue("20:10")
+                    Log.e("Home: Error", "Adding date here FALSE")
+
+                    //new date stuff
+                    val formatted: String =
+                        date.format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"))
+                    userRunLocation.child("Date").setValue(formatted)
+                    userRunLocation.child("Day").setValue(date.dayOfWeek)
+
+                    //Add locally
+                    (activity as MainActivity).DBRunDistances.add(3f)
+                    (activity as MainActivity).DBRunDates.add(date)
+                }
+            }
+
+
+            /*
             dbLocation.child("$i").child("Date").get()
                 .addOnSuccessListener { //Gets the date of every run
 
@@ -176,6 +215,7 @@ class HomeFragment : Fragment() {
 
                 }
 
+*/
         }
 
         if (totalRuns == 0) {
@@ -194,6 +234,9 @@ class HomeFragment : Fragment() {
                 date.format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"))
             userRunLocation.child("Date").setValue(formatted)
             userRunLocation.child("Day").setValue(date.dayOfWeek)
+
+            (activity as MainActivity).DBRunDistances.add(3f)
+            (activity as MainActivity).DBRunDates.add(date)
             Log.e("ERROR", "Adding DATE HERE")
         }
         Log.e("ERROR", "VALUE $foundMatch")

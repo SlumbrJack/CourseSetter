@@ -6,15 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.collection.intListOf
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -40,8 +36,6 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -54,6 +48,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 var floatArrayMonth = FloatArray(31)
 private lateinit var userID: String
+var highestRunMonth = 0
 /**
  * A simple [Fragment] subclass.
  * Use the [MonthStatsFragment.newInstance] factory method to
@@ -108,6 +103,7 @@ class MonthStatsFragment : Fragment() {
 
     @Composable
     fun LineChartScreenMonth() {
+        MonthRunDists()
         val steps = 6
         val pointsData = mutableListOf(
             Point(0f, floatArrayMonth[0])
@@ -118,7 +114,7 @@ class MonthStatsFragment : Fragment() {
         }
 
 
-        Log.e("BUG", "highest run $highestRun")
+        Log.e("BUG", "highest run $highestRunMonth")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
@@ -126,18 +122,17 @@ class MonthStatsFragment : Fragment() {
                 if(i % 5 == 0){i.toString()}
                 else{" "}
                  }
-            //.labelAndAxisLinePadding(15.dp)
-
+            .labelAndAxisLinePadding(15.dp)
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
             .axisStepSize(11.dp)
             .build()
         val yAxisData = AxisData.Builder()
-            .steps(highestRun)
+            .steps(highestRunMonth)
             .backgroundColor(Color.Transparent)
             .labelAndAxisLinePadding(25.dp)
             .labelData { i ->
-                val yScale = highestRun / 1
+                val yScale = highestRunMonth / 1
                 (i).toString()
             }
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
@@ -173,8 +168,8 @@ class MonthStatsFragment : Fragment() {
             backgroundColor = MaterialTheme.colorScheme.surface,
             xAxisData = xAxisData,
             yAxisData = yAxisData,
-            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant),
-            isZoomAllowed = true,
+            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant, enableVerticalLines = false),
+            isZoomAllowed = false,
             //paddingTop = 30.dp,
            // bottomPadding = 20.dp,
             //paddingRight = 10.dp,
@@ -217,9 +212,9 @@ class MonthStatsFragment : Fragment() {
                 Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
                 distRan = DBRunDistances[i].toInt()
                 floatArrayMonth[daysDifference.toInt()] = distRan.toFloat()
-                if(distRan > highestRun){
-                    highestRun = distRan
-                    Log.e("MonthStats", "$daysDifference new record $highestRun")
+                if(distRan > highestRunMonth){
+                    highestRunMonth = distRan
+                    Log.e("MonthStats", "$daysDifference new record $highestRunMonth")
                 }
             }
 

@@ -21,7 +21,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
+
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
@@ -37,13 +37,9 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
-import com.example.coursesetter.ui.dashboard.DashboardFragment
-import com.example.coursesetter.ui.home.HomeFragment
+
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.ktx.database
-import com.google.firebase.ktx.Firebase
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
+
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -57,7 +53,7 @@ private const val ARG_PARAM2 = "param2"
 private lateinit var userID: String
 var distArray = intArrayOf(6,6,6,6,6,6,6)
 var floatArray = floatArrayOf(0f,0f,0f,0f,0f,0f,0f)
-var highestRun = 0
+var highestRunWeek = 0
 
 class WeekStatsFragment : Fragment() {
 
@@ -115,6 +111,7 @@ class WeekStatsFragment : Fragment() {
 
     @Composable
     fun LineChartScreen() {
+        WeekRunDists()
         val dayOfWeekArray = arrayOf("M", "T", "W", "Th", "F", "S", "Su")
         val steps = 6
 
@@ -128,7 +125,7 @@ class WeekStatsFragment : Fragment() {
             Point(6f,  floatArray[6])
         )
 
-        Log.e("BUG", "highest run $highestRun")
+        Log.e("BUG", "highest run $highestRunWeek")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
@@ -141,11 +138,11 @@ class WeekStatsFragment : Fragment() {
             .axisStepSize(50.dp)
             .build()
         val yAxisData = AxisData.Builder()
-            .steps(highestRun)
+            .steps(highestRunWeek)
             .backgroundColor(Color.Transparent)
             .labelAndAxisLinePadding(25.dp)
             .labelData { i ->
-                val yScale = highestRun / 1
+                val yScale = highestRunWeek / 1
                 (i).toString()
             }
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
@@ -181,7 +178,7 @@ class WeekStatsFragment : Fragment() {
             backgroundColor = MaterialTheme.colorScheme.surface,
             xAxisData = xAxisData,
             yAxisData = yAxisData,
-            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant),
+            gridLines = GridLines(color = MaterialTheme.colorScheme.outlineVariant, enableVerticalLines = false),
             isZoomAllowed = false,
             paddingTop = 30.dp,
             bottomPadding = 20.dp,
@@ -220,14 +217,14 @@ class WeekStatsFragment : Fragment() {
         for(i in 0..(totalRuns - 1)){
             dbDate = DBRunDates[i]
 
-            //Log.e("Week", " current $dbDate first $firstDay")
+            Log.e("Week", " current $dbDate first $firstDay")
             if(dbDate.isAfter(firstDay) or dbDate.isEqual(firstDay)){
                 var dayOfWeekValue = dbDate.dayOfWeek.value
                 floatArray[dayOfWeekValue - 1] = DBRunDistances[i]
                 distRan = DBRunDistances[i].toInt()
-                if(distRan > highestRun){
-                    highestRun = distRan
-                   // Log.e("Week", "Day: $dayOfWeekValue Highest: $highestRun")
+                if(distRan > highestRunWeek){
+                    highestRunWeek = distRan
+                   Log.e("Week", "Day: $dayOfWeekValue Highest: $highestRunWeek")
                 }
             }
         }

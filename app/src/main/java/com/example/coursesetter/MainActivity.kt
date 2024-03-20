@@ -115,7 +115,8 @@ class MainActivity : AppCompatActivity() {
 
         val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
         var totalRuns = 0
-
+        DBRunDistances.clear()
+        DBRunDates.clear()
 
 
         Firebase.database.getReference("Users Runs").child("Users").child(userID)
