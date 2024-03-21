@@ -2,16 +2,16 @@ package com.example.coursesetter.fragments
 
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.fragment.app.Fragment
 
 import co.yml.charts.axis.AxisData
@@ -37,9 +38,7 @@ import co.yml.charts.ui.linechart.model.SelectionHighlightPopUp
 import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
-
 import com.google.firebase.auth.FirebaseAuth
-
 import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
@@ -54,6 +53,7 @@ private lateinit var userID: String
 var distArray = intArrayOf(6,6,6,6,6,6,6)
 var floatArray = floatArrayOf(0f,0f,0f,0f,0f,0f,0f)
 var highestRunWeek = 0
+var weekHeader : String = ""
 
 class WeekStatsFragment : Fragment() {
 
@@ -80,22 +80,28 @@ class WeekStatsFragment : Fragment() {
         for(i in (activity as MainActivity).DBRunDistances){
             testString += " $i"
         }
-        Log.e("AAAAA", testString)
+        //Log.e("AAAAA", testString)
 
 
         val composeView = view.findViewById<ComposeView>(R.id.lineChartComposeView)
         composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Box(
+                Column(
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.tertiary),
-                    contentAlignment = Alignment.Center
+                        //.background(MaterialTheme.colorScheme.tertiary)
+
                 )
                 {
-
-                    Log.e("BUG", "CHART FILLED")
+                    Text(
+                        text = weekHeader,
+                        fontSize = 28.sp,
+                        modifier = Modifier
+                            .align(alignment = Alignment.CenterHorizontally)
+                    )
+                    //Log.e("BUG", "CHART FILLED")
                     LineChartScreen() //When this is called it displays the graph with the data from the array.
                 }
 
@@ -125,7 +131,7 @@ class WeekStatsFragment : Fragment() {
             Point(6f,  floatArray[6])
         )
 
-        Log.e("BUG", "highest run $highestRunWeek")
+        //Log.e("BUG", "highest run $highestRunWeek")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
@@ -194,6 +200,10 @@ class WeekStatsFragment : Fragment() {
         )
 
     }
+    fun WeekHeaderFill(date1 : String, date2 : String)
+    {
+        weekHeader = "$date1 - $date2"
+    }
 
     fun WeekRunDists() {
         var DBRunDistances = (activity as MainActivity).DBRunDistances
@@ -210,21 +220,21 @@ class WeekStatsFragment : Fragment() {
         val firstDay: LocalDate =
             LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
 
-        val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+        val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
         var distRan = 0
-
+        WeekHeaderFill(firstDay.format(formatter), firstDay.plusDays(6).format(formatter))
         //NEW STUFF
         for(i in 0..(totalRuns - 1)){
             dbDate = DBRunDates[i]
 
-            Log.e("Week", " current $dbDate first $firstDay")
+            //Log.e("Week", " current $dbDate first $firstDay")
             if(dbDate.isAfter(firstDay) or dbDate.isEqual(firstDay)){
                 var dayOfWeekValue = dbDate.dayOfWeek.value
                 floatArray[dayOfWeekValue - 1] = DBRunDistances[i]
                 distRan = DBRunDistances[i].toInt()
                 if(distRan > highestRunWeek){
                     highestRunWeek = distRan
-                   Log.e("Week", "Day: $dayOfWeekValue Highest: $highestRunWeek")
+                   //Log.e("Week", "Day: $dayOfWeekValue Highest: $highestRunWeek")
                 }
             }
         }
@@ -274,9 +284,9 @@ class WeekStatsFragment : Fragment() {
         for(i in floatArray){
             testString += " $i"
         }
-        Log.e("AAAAA", testString)
+        //Log.e("AAAAA", testString)
 
-        Log.e("BUG", "DB DONE")
+        //Log.e("BUG", "DB DONE")
 }
     }
 

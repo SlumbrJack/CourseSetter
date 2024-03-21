@@ -6,14 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
@@ -48,6 +48,7 @@ private const val ARG_PARAM2 = "param2"
 var floatListAll = mutableListOf<Float>()
 private lateinit var userID: String
 var highestRun = 0
+var allTimeHeader : String = ""
 /**
  * A simple [Fragment] subclass.
  * Use the [AllTimeStatsFragment.newInstance] factory method to
@@ -74,15 +75,20 @@ class AllTimeStatsFragment : Fragment() {
         composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Box(
+                Column(
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.tertiary),
-                    contentAlignment = Alignment.Center
+                    //.background(MaterialTheme.colorScheme.tertiary)
+
                 )
                 {
-
-                    Log.e("BUG", "CHART FILLED")
+                    Text(
+                        text = allTimeHeader,
+                        fontSize = 28.sp,
+                        modifier = Modifier
+                            .align(alignment = Alignment.CenterHorizontally)
+                    )
                     LineChartScreenAll() //When this is called it displays the graph with the data from the array.
                 }
 
@@ -117,7 +123,7 @@ class AllTimeStatsFragment : Fragment() {
             .labelAndAxisLinePadding(15.dp)
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-            .axisStepSize((350/pointsData.size).dp)
+            .axisStepSize((375/pointsData.size).dp)
             .build()
         val yAxisData = AxisData.Builder()
             .steps(highestRun)
@@ -174,7 +180,10 @@ class AllTimeStatsFragment : Fragment() {
         )
 
     }
-
+    fun AllTimeHeaderFill(date1 : String, date2 : String)
+    {
+        allTimeHeader = "$date1 - $date2"
+    }
     fun AllTimeRunDists() {
         floatListAll.clear()
         var DBRunDistances = (activity as MainActivity).DBRunDistances
@@ -183,17 +192,18 @@ class AllTimeStatsFragment : Fragment() {
         val date: LocalDate = LocalDate.now()
         var dbDate: LocalDate = date
 
-        val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+        val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
         var distRan = 0f
 
         var oldestDate = DBRunDates[0]
+        AllTimeHeaderFill(oldestDate.format(formatter), date.format(formatter))
         var noDateFound = false
         var increment = 1
         for(i in 1..(totalRuns -1)){
             noDateFound = false
             dbDate = DBRunDates[i]
             if(distRan > highestRun){
-                Log.e("AllTime", "Highest Updated to: $distRan")
+                //Log.e("AllTime", "Highest Updated to: $distRan")
                 highestRun = distRan.toInt()
             }
             //Log.e("DEBUG- Alltime", "Loop: $i, DBDate: $dbDate, DateFound: $noDateFound")
@@ -225,8 +235,8 @@ class AllTimeStatsFragment : Fragment() {
                     else{
                         floatListAll.add(0f)
                         increment++
-                        Log.e("Alltime", "Added empty: ${oldestDate.plusDays(increment.toLong())}")
-                        Log.e("DEBUG- Alltime- Add Empty", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
+                        //Log.e("Alltime", "Added empty: ${oldestDate.plusDays(increment.toLong())}")
+                        //Log.e("DEBUG- Alltime- Add Empty", "Loop: $i, Increment: $increment, DBDate: $dbDate, Checking Date: ${oldestDate.plusDays(increment.toLong())}")
                     }
                 }
 

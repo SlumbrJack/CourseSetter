@@ -6,12 +6,13 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,6 +21,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import co.yml.charts.axis.AxisData
 import co.yml.charts.common.model.Point
 import co.yml.charts.ui.linechart.LineChart
@@ -36,11 +38,9 @@ import co.yml.charts.ui.linechart.model.ShadowUnderLine
 import com.example.coursesetter.MainActivity
 import com.example.coursesetter.R
 import com.google.firebase.auth.FirebaseAuth
-import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
-import java.time.temporal.TemporalAdjusters
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -49,6 +49,7 @@ private const val ARG_PARAM2 = "param2"
 var floatArrayMonth = FloatArray(31)
 private lateinit var userID: String
 var highestRunMonth = 0
+var monthHeader : String = ""
 /**
  * A simple [Fragment] subclass.
  * Use the [MonthStatsFragment.newInstance] factory method to
@@ -79,15 +80,20 @@ class MonthStatsFragment : Fragment() {
         composeView.apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                Box(
+                Column(
+                    verticalArrangement = Arrangement.Center,
                     modifier = Modifier
                         .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.tertiary),
-                    contentAlignment = Alignment.Center
+                    //.background(MaterialTheme.colorScheme.tertiary)
+
                 )
                 {
-
-                    Log.e("BUG", "CHART FILLED")
+                    Text(
+                        text = monthHeader,
+                        fontSize = 28.sp,
+                        modifier = Modifier
+                            .align(alignment = Alignment.CenterHorizontally)
+                    )
                     LineChartScreenMonth() //When this is called it displays the graph with the data from the array.
                 }
 
@@ -100,7 +106,10 @@ class MonthStatsFragment : Fragment() {
 
 
     }
-
+    fun MonthHeaderFill(date1 : String, date2 : String)
+    {
+        monthHeader = "$date1 - $date2"
+    }
     @Composable
     fun LineChartScreenMonth() {
         MonthRunDists()
@@ -114,7 +123,7 @@ class MonthStatsFragment : Fragment() {
         }
 
 
-        Log.e("BUG", "highest run $highestRunMonth")
+        //Log.e("BUG", "highest run $highestRunMonth")
         val xAxisData = AxisData.Builder()
             .backgroundColor(Color.Transparent)
             .steps(pointsData.size - 1)
@@ -125,7 +134,7 @@ class MonthStatsFragment : Fragment() {
             .labelAndAxisLinePadding(15.dp)
             .axisLineColor(MaterialTheme.colorScheme.tertiary)
             .axisLabelColor(MaterialTheme.colorScheme.tertiary)
-            .axisStepSize(11.dp)
+            .axisStepSize(10.5.dp)
             .build()
         val yAxisData = AxisData.Builder()
             .steps(highestRunMonth)
@@ -195,26 +204,27 @@ class MonthStatsFragment : Fragment() {
 
         val date: LocalDate = LocalDate.now()
         var dbDate: LocalDate = date
-        val firstDay: LocalDate =
-            LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
-        val formatter = DateTimeFormatter.ofPattern("dd-MMM-yyyy")
+        val formatter = DateTimeFormatter.ofPattern("MM/dd/yyyy")
+
         var distRan = 0
 
         var oldDays = date.minusDays(30)
-        Log.e("MonthStats","30 Days Ago: $oldDays")
+
+        MonthHeaderFill(oldDays.format(formatter), date.format(formatter))
+        //Log.e("MonthStats","30 Days Ago: $oldDays")
 
 
         for(i in 0..(totalRuns -1)){
             dbDate = DBRunDates[i]
-            Log.e("MonthStats", "Date is $dbDate")
+            //Log.e("MonthStats", "Date is $dbDate")
             var daysDifference = ChronoUnit.DAYS.between(oldDays, dbDate)
             if(daysDifference >= 0) {
-                Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
+                //Log.e("MonthStats", "$dbDate is $daysDifference days from $oldDays")
                 distRan = DBRunDistances[i].toInt()
                 floatArrayMonth[daysDifference.toInt()] = distRan.toFloat()
                 if(distRan > highestRunMonth){
                     highestRunMonth = distRan
-                    Log.e("MonthStats", "$daysDifference new record $highestRunMonth")
+                    //Log.e("MonthStats", "$daysDifference new record $highestRunMonth")
                 }
             }
 
