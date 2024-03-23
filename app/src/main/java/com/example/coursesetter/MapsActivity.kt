@@ -1,37 +1,37 @@
 package com.example.coursesetter
 
 import android.Manifest
-import android.content.BroadcastReceiver
 import android.content.pm.PackageManager
 import android.location.Location
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
+import androidx.fragment.app.FragmentActivity
+import androidx.fragment.app.FragmentManager
+import com.example.coursesetter.fragments.UserEnterDistance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.OnMapReadyCallback
+import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
-import org.chromium.base.Callback
 import com.google.maps.DirectionsApi
 import com.google.maps.GeoApiContext
 import com.google.maps.PendingResult
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.TravelMode
-import okhttp3.Route
 
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
@@ -43,6 +43,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val permissionCode = 101
     private val droppedPins: MutableList<LatLng> = mutableListOf()
     private val polylines: MutableList<Polyline> = mutableListOf()
+    public var userDistance: Float = 0.0f
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
@@ -223,5 +224,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     Log.e("DirectionsAPI", "Failed to fetch directions: ${e.message}")
                 }
             })
+    }
+    //This function can be repurposed to actually find the destination, but for now just shows a toast so I know it was called from frag -J
+    public fun findDestination()
+    {
+        Toast.makeText(this, "User Entered $userDistance", Toast.LENGTH_LONG).show()
     }
 }

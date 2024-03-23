@@ -1,6 +1,8 @@
 package com.example.coursesetter.ui.home
 
 import android.content.ContentValues.TAG
+import android.content.Context
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,8 +12,10 @@ import android.widget.Button
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.coursesetter.MainActivity
+import com.example.coursesetter.MapsActivity
 import com.example.coursesetter.R
 import com.example.coursesetter.databinding.FragmentHomeBinding
+import com.example.coursesetter.fragments.UserEnterDistance
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.DataSnapshot
 import com.google.firebase.database.DatabaseError
@@ -60,6 +64,7 @@ class HomeFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
         val database = Firebase.database
         val generateDataBtn = view.findViewById<Button>(R.id.GenerateSampleButton)
+        val receiveUserDistance = view.findViewById<Button>(R.id.GenerateCourseButton)
 
         //run data code.
         var totalRunsAny : Any?
@@ -103,6 +108,11 @@ class HomeFragment : Fragment() {
                     }
             }
 
+        }
+
+        receiveUserDistance.setOnClickListener{
+            val Intent = Intent(this.activity, MapsActivity::class.java)
+            startActivity(Intent)
         }
     }
     fun FoundMatch(){
