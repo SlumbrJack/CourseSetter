@@ -1,5 +1,7 @@
 package com.example.coursesetter
 
+
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -14,6 +16,7 @@ import com.example.coursesetter.R.id.navigation_home
 import com.example.coursesetter.databinding.ActivityMainBinding
 import com.google.android.material.bottomnavigation.BottomNavigationView
 import com.google.android.material.navigation.NavigationView
+
 
 
 class MainActivity : AppCompatActivity() {
@@ -41,20 +44,23 @@ class MainActivity : AppCompatActivity() {
             when (menuItem.itemId) {
                 R.id.navigation_Home -> {
                     // Handle navigation to the home destination
-                    navController.navigate(R.id.navigation_home)
+                    navController.navigate(navigation_home)
 
                 }
 
-                R.id.navigation_dashboard ->  {
+                navigation_dashboard ->  {
                     // Handle navigation to the dashboard destination
-                    navController.navigate(R.id.navigation_dashboard)
+                    navController.navigate(navigation_dashboard)
                 }
 
-                R.id.navigation_settings -> {
+                R.id.navigation_appaccsettings -> {
                     // Handle navigation to the notifications destination
-                    navController.navigate(R.id.navigation_settings)
+                    navController.navigate(R.id.navigation_appaccsettings)
 
                 }
+
+
+
 
                 else -> {
                     // Handle everything else
