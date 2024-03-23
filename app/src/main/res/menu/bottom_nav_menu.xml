@@ -17,7 +17,7 @@
         android:title="@string/title_notifications" />
 
     <item
-        android:id="@+id/navigation_settings"
+        android:id="@+id/appaccsettings"
         android:icon="@drawable/ic_launcher_foreground"
         android:title="Settings" />
 

@@ -12,5 +12,9 @@
         android:text="All Time Stats"
         android:layout_centerInParent="true"
         android:textSize="32sp"/>
-
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/lineChartComposeViewAll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        />
 </RelativeLayout>

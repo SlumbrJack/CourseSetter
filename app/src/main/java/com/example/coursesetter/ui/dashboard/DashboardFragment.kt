@@ -43,6 +43,7 @@ class DashboardFragment : Fragment() {
         val statsViewPagerAdapter : StatsViewPagerAdapter = StatsViewPagerAdapter(this)
         // val onTabSelectedListener : TabLayout.OnTabSelectedListener =  TabLayout.OnTabSelectedListener
         statsViewPager2.adapter = statsViewPagerAdapter
+        statsViewPager2.isUserInputEnabled = false
         statsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 statsViewPager2.currentItem = tab.position
@@ -70,19 +71,5 @@ class DashboardFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
-
-/* John: I wrote this to try and fix my graphs but it didnt work, hanging on to it for now :(
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        val navController  = this.view?.let { Navigation.findNavController(it) }
-        if(!hasReloaded){
-            hasReloaded = true
-            Log.e("BUG", "RELOADED")
-            // Handle navigation to the dashboard destination
-            navController!!.navigate(R.id.navigation_dashboard)
-
-        }
-    }
-    */
 
 }
