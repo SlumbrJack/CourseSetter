@@ -16,6 +16,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.CourseSetter"
         tools:targetApi="31">
+
+        <activity android:name="com.example.coursesetter.appaccsettings" />
+
         <activity
             android:name=".MapsActivity"
             android:exported="false" />
@@ -26,6 +29,8 @@
             android:name=".SignInActivity"
             android:exported="true"
             android:label="@string/app_name">
+
+
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
