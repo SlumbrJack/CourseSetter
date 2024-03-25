@@ -12,4 +12,63 @@
         android:name="com.google.android.gms.maps.SupportMapFragment"
         android:id="@+id/map"/>
 
+    <fragment
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.example.coursesetter.fragments.UserEnterDistance"
+        android:id="@+id/userEnterDistance"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:gravity="bottom"
+        android:background="@color/white"
+        android:paddingVertical="10sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="horizontal">
+
+            <TextView
+                android:id="@+id/textViewDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingVertical="5sp"
+                android:paddingHorizontal="5sp"
+                android:text="Distance Travelled: "
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:gravity= "start"/>
+
+            <TextView
+                android:id="@+id/textViewTargetDistance"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:paddingVertical="5sp"
+                android:paddingHorizontal="5sp"
+                android:text="Distance Goal: "
+                android:textColor="@color/black"
+                android:textSize="20sp"
+                android:gravity="end"/>
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonFinishEarly"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Finish Run" />
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

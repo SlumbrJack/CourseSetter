@@ -1,12 +1,14 @@
 package com.example.coursesetter.ui.dashboard
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.Navigation
 import androidx.viewpager2.widget.ViewPager2
 import com.example.coursesetter.R
 import com.example.coursesetter.StatsViewPagerAdapter
@@ -14,7 +16,7 @@ import com.example.coursesetter.databinding.FragmentDashboardBinding
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.google.android.material.tabs.TabLayoutMediator.TabConfigurationStrategy
-
+var hasReloaded = false
 class DashboardFragment : Fragment() {
 
     private var _binding: FragmentDashboardBinding? = null
@@ -41,6 +43,7 @@ class DashboardFragment : Fragment() {
         val statsViewPagerAdapter : StatsViewPagerAdapter = StatsViewPagerAdapter(this)
         // val onTabSelectedListener : TabLayout.OnTabSelectedListener =  TabLayout.OnTabSelectedListener
         statsViewPager2.adapter = statsViewPagerAdapter
+        statsViewPager2.isUserInputEnabled = false
         statsTabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab) {
                 statsViewPager2.currentItem = tab.position
@@ -68,4 +71,5 @@ class DashboardFragment : Fragment() {
         super.onDestroyView()
         _binding = null
     }
+
 }
