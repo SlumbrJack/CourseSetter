@@ -1,18 +1,25 @@
 package com.example.coursesetter
 
 import android.Manifest
+import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorManager
+import android.hardware.SensorEventListener
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
+import android.widget.Button
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import androidx.fragment.app.FragmentManager
-import com.example.coursesetter.fragments.UserEnterDistance
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -32,9 +39,10 @@ import com.google.maps.GeoApiContext
 import com.google.maps.PendingResult
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.TravelMode
+import kotlin.math.round
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListener {
 
     private lateinit var mapFragment: SupportMapFragment
     private lateinit var googleMap: GoogleMap
@@ -43,12 +51,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private val permissionCode = 101
     private val droppedPins: MutableList<LatLng> = mutableListOf()
     private val polylines: MutableList<Polyline> = mutableListOf()
+
+    //Step Vars
+    var sensorManager: SensorManager? = null
+    var running = false
+    var totalSteps = 0f
+    var previousTotalSteps = 0f
     public var userDistance: Float = 0.0f
+    protected var steps: Int = 0
+    public var currentDistance: Float = 0.0f
+    val startingSteps: Int = 0
+    var hasInitialSteps = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
+        findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
 
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync { googleMap ->
@@ -59,7 +80,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-
+        //Gets the step counter
+        sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
+        hasInitialSteps = false
 
         getCurrentLocationUser()
 
@@ -71,6 +94,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
                     addMarker(MarkerOptions().position(latLng).title("Marker"))
                 }
             }
+        }
+        //Finish run button. sends data in a bundle to Main
+        val endButton = findViewById<Button>(R.id.buttonFinishEarly)
+        endButton.setOnClickListener {
+            running = false
+            val intent = Intent(this, MainActivity::class.java)
+            currentDistance = (round((steps / 22.22f))) / 100
+            intent.putExtra("distance", currentDistance)
+            startActivity(intent)
+            finish()
         }
     }
 
@@ -228,6 +261,52 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     //This function can be repurposed to actually find the destination, but for now just shows a toast so I know it was called from frag -J
     public fun findDestination()
     {
-        Toast.makeText(this, "User Entered $userDistance", Toast.LENGTH_LONG).show()
+        //Toast.makeText(this, "User Entered $userDistance", Toast.LENGTH_SHORT).show()
+        findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
     }
+    //When the sensor detects a step, this function will be called. Updates the distance counter by converting steps to distance
+    override fun onSensorChanged(event: SensorEvent?) {
+
+            if(running){
+                totalSteps = event!!.values[0]
+                if(!hasInitialSteps)
+                {
+                    hasInitialSteps = true
+                    previousTotalSteps = totalSteps
+                }
+
+
+                val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+                //Toast.makeText(this, "$currentSteps", Toast.LENGTH_SHORT).show()
+                steps = currentSteps
+                currentDistance = (round((steps / 22.22f))) / 100
+
+
+                findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
+                //tv_stepsTaken.text = ("$currentSteps")
+                Log.w("Main: Sensor", "Changed")
+            }
+
+
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        Log.w("Main: Sensor", "Accuracy Changed")
+    }
+    override fun onResume() {
+        super.onResume()
+
+
+            running = true
+            val stepSensor: Sensor? = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+            if(stepSensor == null)
+            {
+                Toast.makeText(this, "No sensor detected", Toast.LENGTH_LONG).show()
+            }else{
+                sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
+                Log.w("Main: Sensor", "Resuming")
+            }
+
+    }
+
 }

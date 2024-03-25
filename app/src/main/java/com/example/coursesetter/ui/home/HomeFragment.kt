@@ -63,7 +63,7 @@ class HomeFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         val database = Firebase.database
-        val generateDataBtn = view.findViewById<Button>(R.id.GenerateSampleButton)
+        //val generateDataBtn = view.findViewById<Button>(R.id.GenerateSampleButton)
         val receiveUserDistance = view.findViewById<Button>(R.id.GenerateCourseButton)
 
         //run data code.
@@ -92,7 +92,7 @@ class HomeFragment : Fragment() {
                 }
             })
 
-        //on button press, generate fake run data for a new run for the signed in user
+        /*//on button press, generate fake run data for a new run for the signed in user
         generateDataBtn.setOnClickListener {
 
             if (FirebaseAuth.getInstance().currentUser?.uid != null) {
@@ -109,7 +109,7 @@ class HomeFragment : Fragment() {
             }
 
         }
-
+*/
         receiveUserDistance.setOnClickListener{
             val Intent = Intent(this.activity, MapsActivity::class.java)
             startActivity(Intent)

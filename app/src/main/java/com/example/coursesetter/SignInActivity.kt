@@ -121,7 +121,8 @@ class SignInActivity : AppCompatActivity() {
                     }
                     Firebase.database.reference.child("Users").child(userID).addListenerForSingleValueEvent(uidEventListener)
 
-                    startActivity(Intent(this, MainActivity::class.java))
+                    val intent = Intent(this, MainActivity::class.java)
+                    startActivity(intent)
                     finish()
                 } else {
                     Toast.makeText(this, "Authentication failed", Toast.LENGTH_SHORT).show()
