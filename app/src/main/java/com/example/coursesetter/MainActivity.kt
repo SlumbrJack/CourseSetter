@@ -33,6 +33,7 @@ class MainActivity : AppCompatActivity() {
         val navView: BottomNavigationView = binding.navView
         val navController = findNavController(R.id.nav_host_fragment_activity_main)
 
+
         // Setup for (Side Nav)
         val drawerNavView: NavigationView = binding.sideNavigation
         drawerNavView.setupWithNavController(navController)
@@ -53,9 +54,9 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(navigation_dashboard)
                 }
 
-                R.id.navigation_appaccsettings -> {
+                R.id.navigation_Maps-> {
                     // Handle navigation to the notifications destination
-                    navController.navigate(R.id.navigation_appaccsettings)
+                    navController.navigate(R.id.navigation_Maps)
 
                 }
 

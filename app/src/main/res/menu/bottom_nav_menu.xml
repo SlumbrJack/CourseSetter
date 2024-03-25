@@ -20,5 +20,8 @@
         android:id="@+id/navigation_settings"
         android:icon="@drawable/settings_image"
         android:title="Settings" />
-
+    <item
+        android:id="@+id/navigation_Maps"
+        android:icon="@drawable/baseline_map_24"
+        android:title="Maps" />
 </menu>

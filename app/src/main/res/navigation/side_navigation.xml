@@ -31,9 +31,5 @@
         android:name="com.example.coursesetter.fragments.AllTimeStatsFragment"
         android:label="fragment_all_time_stats"
         tools:layout="@layout/fragment_all_time_stats" />
-    <activity
-        android:id="@+id/appaccsettings2"
-        android:name="com.example.coursesetter.ui.appaccsettings"
-        android:label="appaccsettings"
-        tools:layout="@layout/appaccsettings" />
+
 </navigation>
