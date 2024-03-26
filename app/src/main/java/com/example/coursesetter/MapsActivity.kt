@@ -101,6 +101,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
                     googleMap.addMarker(markerOptions)
+
+                    // Request location updates
+                    requestLocationUpdates()
                 } else {
                     requestLocationUpdates()
                 }
@@ -111,22 +114,19 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
     private fun requestLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000
-            fastestInterval = 5000
+            interval = 10000 // 10 seconds (adjust as needed)
+            fastestInterval = 5000 // 5 seconds (adjust as needed)
         }
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 for (location in locationResult.locations) {
-
                     currentLocation = location
                     val latLng = LatLng(location.latitude, location.longitude)
                     val markerOptions = MarkerOptions().position(latLng).title("Current Location")
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
                     googleMap.addMarker(markerOptions)
-
-                    fusedLocationProviderClient.removeLocationUpdates(this)
                 }
             }
         }
@@ -174,51 +174,52 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onMapReady(gMap: GoogleMap) {
 
+        googleMap = gMap
+
         googleMap.setOnMapClickListener { latLng ->
             droppedPins.add(latLng)
             googleMap.addMarker(MarkerOptions().position(latLng))
 
             if (droppedPins.size >= 2) {
-                drawRoute(googleMap)
+                drawRoute()
             }
-
-            val latLng = LatLng(currentLocation.latitude, currentLocation.longitude)
-            val markerOptions = MarkerOptions().position(latLng).title("Current Location")
-
-            googleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 7f))
-            googleMap.addMarker(markerOptions)
         }
     }
 
-    private fun drawRoute(googleMap: GoogleMap) {
-
+    private fun drawRoute() {
         for (polyline in polylines) {
             polyline.remove()
         }
         polylines.clear()
 
-        val boundsBuilder = LatLngBounds.Builder()
-        for (pin in droppedPins) {
-            boundsBuilder.include(pin)
-        }
-        val bounds = boundsBuilder.build()
         val origin = droppedPins.first()
         val destination = droppedPins.last()
-        val context = GeoApiContext.Builder().apiKey("YOUR_API_KEY").build()
+        val context =
+            GeoApiContext.Builder().apiKey("AIzaSyAi-frfUzEuBn22NStQ-DWlj9kAxFZLu-U").build()
 
-        DirectionsApi.getDirections(context, "${origin.latitude},${origin.longitude}", "${destination.latitude},${destination.longitude}")
+        DirectionsApi.getDirections(
+            context,
+            "${origin.latitude},${origin.longitude}",
+            "${destination.latitude},${destination.longitude}"
+        )
             .mode(TravelMode.DRIVING)
             .setCallback(object : PendingResult.Callback<DirectionsResult> {
                 override fun onResult(result: DirectionsResult) {
-
-                    val route = result.routes[0]
-                    val routePoints = route.overviewPolyline.decodePath()
-                    val polylineOptions = PolylineOptions().addAll(routePoints.map { LatLng(it.lat, it.lng) })
-                    val polyline = googleMap.addPolyline(polylineOptions)
-                    polylines.add(polyline)
-                    googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
+                    if (result.routes.isNotEmpty()) {
+                        for ((index, route) in result.routes.withIndex()) {
+                            Log.d("DirectionsAPI", "Route ${index + 1}: ${route.summary}")
+                        }
+                        val route = result.routes[0]
+                        val routePoints = route.overviewPolyline.decodePath()
+                        val polylineOptions =
+                            PolylineOptions().addAll(routePoints.map { LatLng(it.lat, it.lng) })
+                        val polyline = googleMap.addPolyline(polylineOptions)
+                        polylines.add(polyline)
+                    } else {
+                        Log.e("DirectionsAPI", "No routes found")
+                    }
                 }
+
                 override fun onFailure(e: Throwable) {
                     Log.e("DirectionsAPI", "Failed to fetch directions: ${e.message}")
                 }
