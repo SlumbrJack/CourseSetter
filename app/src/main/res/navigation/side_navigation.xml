@@ -6,11 +6,6 @@
     app:startDestination="@id/homeFragment">
 
     <fragment
-        android:id="@+id/navigation_appaccsettings"
-        android:name="com.example.coursesetter.fragments.SettingsFragment"
-        android:label="Settings"
-        tools:layout="@layout/fragment_settings"/>
-    <fragment
         android:id="@+id/homeFragment"
         android:name="com.example.coursesetter.ui.home.HomeFragment"
         android:label="Home"
@@ -21,15 +16,12 @@
         android:name="com.example.coursesetter.ui.dashboard.DashboardFragment"
         android:label="@string/title_dashboard"
         tools:layout="@layout/fragment_dashboard" />
-    <fragment
-        android:id="@+id/notificationsFragment"
-        android:name="com.example.coursesetter.ui.notifications.NotificationsFragment"
-        android:label="fragment_notifications"
-        tools:layout="@layout/fragment_notifications" />
-    <fragment
-        android:id="@+id/allTimeStatsFragment"
-        android:name="com.example.coursesetter.fragments.AllTimeStatsFragment"
-        android:label="fragment_all_time_stats"
-        tools:layout="@layout/fragment_all_time_stats" />
+
+    <activity
+        android:id="@+id/mapsActivity"
+        android:name="com.example.coursesetter.MapsActivity"
+        android:label="activity_maps"
+        tools:layout="@layout/activity_maps" />
+
 
 </navigation>

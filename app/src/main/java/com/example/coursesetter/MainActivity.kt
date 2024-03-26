@@ -12,6 +12,7 @@ import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
+import com.example.coursesetter.R.id.mapsActivity
 import com.example.coursesetter.R.id.navigation_dashboard
 import com.example.coursesetter.R.id.navigation_home
 import com.example.coursesetter.databinding.ActivityMainBinding
@@ -77,9 +78,9 @@ class MainActivity : AppCompatActivity() {
                     navController.navigate(navigation_dashboard)
                 }
 
-                R.id.navigation_Maps-> {
-                    // Handle navigation to the notifications destination
-                    navController.navigate(R.id.navigation_Maps)
+                R.id.mapsActivity-> {
+                    // Handle navigation to the maps destination
+                    navController.navigate(R.id.mapsActivity)
 
                 }
 
@@ -102,7 +103,7 @@ class MainActivity : AppCompatActivity() {
 
         // Set of top-level destinations in the bottom nav
         val topLevelDestinations = setOf(
-            navigation_home, navigation_dashboard, R.id.navigation_notifications
+            navigation_home, navigation_dashboard, mapsActivity
 
         )
 
