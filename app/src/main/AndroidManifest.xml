@@ -18,7 +18,7 @@
         android:theme="@style/Theme.CourseSetter"
         tools:targetApi="31">
 
-        <activity android:name="com.example.coursesetter.appaccsettings" />
+        <activity android:name="com.example.coursesetter.AccSettings" />
 
         <activity
             android:name=".MapsActivity"

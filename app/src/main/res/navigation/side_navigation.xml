@@ -22,6 +22,11 @@
         android:name="com.example.coursesetter.MapsActivity"
         android:label="activity_maps"
         tools:layout="@layout/activity_maps" />
+    <activity
+        android:id="@+id/accSettings"
+        android:name="com.example.coursesetter.AccSettings"
+        android:label="accsettings"
+        tools:layout="@layout/accsettings" />
 
 
 </navigation>

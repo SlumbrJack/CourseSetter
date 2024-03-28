@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="AccSettings">
+
+
+
+    <!-- Title for Accessibility Settings -->
+    <TextView
+        android:id="@+id/textViewAccessibilitySettings"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:text="Accessibility Settings"
+        android:textAppearance="@style/TextAppearance.AppCompat.Large"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <Switch
+        android:id="@+id/switchTextToSpeech"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="100dp"
+        android:padding="16dp"
+        android:text="Text-to-Speech"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textViewAccessibilitySettings" />
+
+    <Switch
+        android:id="@+id/switchColorInversion"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="128dp"
+        android:padding="16dp"
+        android:text="Color Inversion"
+        android:textSize="34sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchTextToSpeech" />
+
+    <SeekBar
+        android:id="@+id/seekBarTextSize"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="124dp"
+        android:max="30"
+        android:progress="14"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/switchColorInversion" />
+
+    <TextView
+        android:id="@+id/textViewTextSizeLabel"
+        android:layout_width="139dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginEnd="14dp"
+        android:layout_marginBottom="13dp"
+        android:fontFamily="sans-serif"
+        android:text="Text Size"
+        android:textSize="24sp"
+        app:layout_constraintBottom_toTopOf="@+id/seekBarTextSize"
+        app:layout_constraintEnd_toEndOf="@+id/seekBarTextSize"
+        app:layout_constraintStart_toStartOf="@+id/seekBarTextSize" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

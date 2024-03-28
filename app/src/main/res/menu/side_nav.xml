@@ -19,6 +19,7 @@
         android:title="Maps" />
 
     <item
+        android:id="@+id/accSettings"
         android:icon="@drawable/settings"
         android:title="Settings" />
 

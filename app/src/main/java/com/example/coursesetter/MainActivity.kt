@@ -1,15 +1,12 @@
 package com.example.coursesetter
 
 
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
-import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.navigation.ui.setupWithNavController
 import com.example.coursesetter.R.id.mapsActivity
@@ -82,6 +79,11 @@ class MainActivity : AppCompatActivity() {
                     // Handle navigation to the maps destination
                     navController.navigate(R.id.mapsActivity)
 
+
+                }
+                R.id.accSettings -> {
+                    // Handle navigation to the maps destination
+                    navController.navigate(R.id.accSettings)
                 }
 
 
@@ -103,9 +105,9 @@ class MainActivity : AppCompatActivity() {
 
         // Set of top-level destinations in the bottom nav
         val topLevelDestinations = setOf(
-            navigation_home, navigation_dashboard, mapsActivity
+            navigation_home, navigation_dashboard, mapsActivity,
 
-        )
+            )
 
         appBarConfiguration = AppBarConfiguration(topLevelDestinations, binding.drawerLayout)
 
