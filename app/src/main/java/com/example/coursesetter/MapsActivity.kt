@@ -4,22 +4,22 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.hardware.Sensor
 import android.hardware.SensorEvent
-import android.hardware.SensorManager
 import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
 import android.util.Log
 import android.widget.Button
+import android.widget.Chronometer
 import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import androidx.fragment.app.FragmentActivity
-import androidx.fragment.app.FragmentManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
@@ -42,6 +42,8 @@ import com.google.maps.model.TravelMode
 import kotlin.math.round
 
 
+
+
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListener {
 
     private lateinit var mapFragment: SupportMapFragment
@@ -51,6 +53,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     private val permissionCode = 101
     private val droppedPins: MutableList<LatLng> = mutableListOf()
     private val polylines: MutableList<Polyline> = mutableListOf()
+    private var totalDistanceMeters: Float = 0f
+    private lateinit var previousLocation: Location
+    private var lastMarkerDistanceMiles: Float = 0.0f
+    private lateinit var chronometer: Chronometer
+
+
 
     //Step Vars
     var sensorManager: SensorManager? = null
@@ -67,6 +75,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
         setContentView(R.layout.activity_maps)
 
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        previousLocation = Location("")
+        lastMarkerDistanceMiles = 0.0f
+        chronometer = findViewById(R.id.chronometer)
+
 
         findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
         findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
@@ -105,6 +117,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
             startActivity(intent)
             finish()
         }
+
+        requestLocationUpdates()
+        chronometer.start()
     }
 
     private fun getCurrentLocationUser() {
@@ -135,6 +150,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
 
                     googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
                     googleMap.addMarker(markerOptions)
+
+                    // Request location updates
+                    requestLocationUpdates()
                 } else {
                     requestLocationUpdates()
                 }
@@ -145,22 +163,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     private fun requestLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000
-            fastestInterval = 5000
+            interval = 10000 // 10 seconds (adjust as needed)
+            fastestInterval = 5000 // 5 seconds (adjust as needed)
         }
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 for (location in locationResult.locations) {
+                    // Calculate distance between current and previous location
+                    if (previousLocation.latitude != 0.0 && previousLocation.longitude != 0.0) {
+                        val distance = location.distanceTo(previousLocation)
+                        totalDistanceMeters += distance
+                        // Convert distance to miles
+                        val totalDistanceMiles = totalDistanceMeters * 0.000621371f
 
-                    currentLocation = location
-                    val latLng = LatLng(location.latitude, location.longitude)
-                    val markerOptions = MarkerOptions().position(latLng).title("Current Location")
-                    googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15f))
-                    googleMap.addMarker(markerOptions)
+                        // Check if the user has traveled 0.05 miles since the last marker
+                        if (totalDistanceMiles - lastMarkerDistanceMiles >= 0.02f) {
+                            // Set marker at current location
+                            val latLng = LatLng(location.latitude, location.longitude)
+                            googleMap.addMarker(MarkerOptions().position(latLng).title("Marker at ${"%.2f".format(totalDistanceMiles)} miles"))
+                            // Update last marker distance
+                            lastMarkerDistanceMiles = totalDistanceMiles
+                        }
+                    }
+                    // Update previous location
+                    previousLocation = location
 
-                    fusedLocationProviderClient.removeLocationUpdates(this)
+                    // Update UI to display distance in miles
+                    val currentDistanceMiles = totalDistanceMeters * 0.000621371f
+                    findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: ${"%.2f".format(currentDistanceMiles)} miles"
                 }
             }
         }
@@ -181,6 +213,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
             Looper.getMainLooper()
         )
     }
+
 
 
     override fun onRequestPermissionsResult(
@@ -239,7 +272,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
         val bounds = boundsBuilder.build()
         val origin = droppedPins.first()
         val destination = droppedPins.last()
-        val context = GeoApiContext.Builder().apiKey("YOUR_API_KEY").build()
+        val context = GeoApiContext.Builder().apiKey("AIzaSyAi-frfUzEuBn22NStQ-DWlj9kAxFZLu-U").build()
 
         DirectionsApi.getDirections(context, "${origin.latitude},${origin.longitude}", "${destination.latitude},${destination.longitude}")
             .mode(TravelMode.DRIVING)
@@ -248,46 +281,48 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
 
                     val route = result.routes[0]
                     val routePoints = route.overviewPolyline.decodePath()
+
+                    // Adjust polyline color and width
                     val polylineOptions = PolylineOptions().addAll(routePoints.map { LatLng(it.lat, it.lng) })
+                        .color(Color.BLACK) // Set polyline color to red
+                        .width(100f) // Set polyline width to 10 pixels
+
                     val polyline = googleMap.addPolyline(polylineOptions)
                     polylines.add(polyline)
+
+                    // Adjust camera to fit the bounds of the route
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
                 }
+
                 override fun onFailure(e: Throwable) {
                     Log.e("DirectionsAPI", "Failed to fetch directions: ${e.message}")
                 }
             })
     }
+
     //This function can be repurposed to actually find the destination, but for now just shows a toast so I know it was called from frag -J
     public fun findDestination()
     {
         //Toast.makeText(this, "User Entered $userDistance", Toast.LENGTH_SHORT).show()
         findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
     }
-    //When the sensor detects a step, this function will be called. Updates the distance counter by converting steps to distance
+
     override fun onSensorChanged(event: SensorEvent?) {
-
-            if(running){
-                totalSteps = event!!.values[0]
-                if(!hasInitialSteps)
-                {
-                    hasInitialSteps = true
-                    previousTotalSteps = totalSteps
-                }
-
-
-                val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
-                //Toast.makeText(this, "$currentSteps", Toast.LENGTH_SHORT).show()
-                steps = currentSteps
-                currentDistance = (round((steps / 22.22f))) / 100
-
-
-                findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
-                //tv_stepsTaken.text = ("$currentSteps")
-                Log.w("Main: Sensor", "Changed")
+        if (running) {
+            totalSteps = event!!.values[0]
+            if (!hasInitialSteps) {
+                hasInitialSteps = true
+                previousTotalSteps = totalSteps
             }
 
+            val currentSteps = totalSteps.toInt() - previousTotalSteps.toInt()
+            steps = currentSteps
 
+            val distanceMiles = (steps / 22.22f) * 0.000621371f
+            val formattedDistance = String.format("%.2f", distanceMiles)
+
+            findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $formattedDistance miles"
+        }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
@@ -295,7 +330,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     }
     override fun onResume() {
         super.onResume()
-
 
             running = true
             val stepSensor: Sensor? = sensorManager?.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
@@ -306,7 +340,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
                 sensorManager?.registerListener(this, stepSensor, SensorManager.SENSOR_DELAY_UI)
                 Log.w("Main: Sensor", "Resuming")
             }
-
     }
+
 
 }
