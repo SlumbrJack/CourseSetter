@@ -54,6 +54,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     private val droppedPins: MutableList<LatLng> = mutableListOf()
     private val polylines: MutableList<Polyline> = mutableListOf()
     private var totalDistanceMeters: Float = 0f
+    private var totalDistanceMiles: Float = 0f
     private lateinit var previousLocation: Location
     private var lastMarkerDistanceMiles: Float = 0.0f
     private lateinit var chronometer: Chronometer
@@ -80,8 +81,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
         chronometer = findViewById(R.id.chronometer)
 
 
-        findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
-        findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
+        //findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $currentDistance"
+        //findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
+        findViewById<TextView>(R.id.textViewDistance).text = "$currentDistance / $userDistance miles"
 
         mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync { googleMap ->
@@ -113,7 +115,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
             running = false
             val intent = Intent(this, MainActivity::class.java)
             currentDistance = (round((steps / 22.22f))) / 100
-            intent.putExtra("distance", currentDistance)
+            intent.putExtra("distance", totalDistanceMiles)
             startActivity(intent)
             finish()
         }
@@ -176,7 +178,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
                         val distance = location.distanceTo(previousLocation)
                         totalDistanceMeters += distance
                         // Convert distance to miles
-                        val totalDistanceMiles = totalDistanceMeters * 0.000621371f
+                        totalDistanceMiles = totalDistanceMeters * 0.000621371f
 
                         // Check if the user has traveled 0.05 miles since the last marker
                         if (totalDistanceMiles - lastMarkerDistanceMiles >= 0.02f) {
@@ -192,7 +194,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
 
                     // Update UI to display distance in miles
                     val currentDistanceMiles = totalDistanceMeters * 0.000621371f
-                    findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: ${"%.2f".format(currentDistanceMiles)} miles"
+                    //findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: ${"%.2f".format(currentDistanceMiles)} miles"
+                    findViewById<TextView>(R.id.textViewDistance).text = "${"%.2f".format(currentDistanceMiles)} / $userDistance miles"
                 }
             }
         }
@@ -304,7 +307,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     public fun findDestination()
     {
         //Toast.makeText(this, "User Entered $userDistance", Toast.LENGTH_SHORT).show()
-        findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
+        //findViewById<TextView>(R.id.textViewTargetDistance).text = "Distance Goal: $userDistance"
+        findViewById<TextView>(R.id.textViewDistance).text = "$currentDistance / $userDistance miles"
     }
 
     override fun onSensorChanged(event: SensorEvent?) {
@@ -321,7 +325,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
             val distanceMiles = (steps / 22.22f) * 0.000621371f
             val formattedDistance = String.format("%.2f", distanceMiles)
 
-            findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $formattedDistance miles"
+            //findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: $formattedDistance miles"
+            findViewById<TextView>(R.id.textViewDistance).text = "$formattedDistance / $userDistance miles"
+            findViewById<TextView>(R.id.textViewSteps).text = "$steps steps"
         }
     }
 

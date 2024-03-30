@@ -50,24 +50,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="start"
+                android:gravity="center"
                 android:paddingHorizontal="5sp"
                 android:paddingVertical="5sp"
-                android:text="Distance Travelled: "
+                android:text="0.0 / 0.0 miles "
                 android:textColor="@color/black"
                 android:textSize="20sp" />
-
             <TextView
-                android:id="@+id/textViewTargetDistance"
+                android:id="@+id/textViewSteps"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:gravity="end"
+                android:gravity="center"
                 android:paddingHorizontal="5sp"
                 android:paddingVertical="5sp"
-                android:text="Distance Goal: "
+                android:text="0 steps"
                 android:textColor="@color/black"
                 android:textSize="20sp" />
+
+
         </LinearLayout>
 
         <Button
