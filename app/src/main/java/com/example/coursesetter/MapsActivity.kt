@@ -40,6 +40,8 @@ import com.google.maps.PendingResult
 import com.google.maps.model.DirectionsResult
 import com.google.maps.model.TravelMode
 import kotlin.math.round
+import kotlin.math.*
+
 
 
 
@@ -165,34 +167,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
     private fun requestLocationUpdates() {
         val locationRequest = LocationRequest.create().apply {
             priority = LocationRequest.PRIORITY_HIGH_ACCURACY
-            interval = 10000 // 10 seconds (adjust as needed)
-            fastestInterval = 5000 // 5 seconds (adjust as needed)
+            interval = 10000
+            fastestInterval = 5000
         }
 
         val locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 super.onLocationResult(locationResult)
                 for (location in locationResult.locations) {
-                    // Calculate distance between current and previous location
+
                     if (previousLocation.latitude != 0.0 && previousLocation.longitude != 0.0) {
                         val distance = location.distanceTo(previousLocation)
                         totalDistanceMeters += distance
-                        // Convert distance to miles
+
                         totalDistanceMiles = totalDistanceMeters * 0.000621371f
 
-                        // Check if the user has traveled 0.05 miles since the last marker
                         if (totalDistanceMiles - lastMarkerDistanceMiles >= 0.02f) {
-                            // Set marker at current location
                             val latLng = LatLng(location.latitude, location.longitude)
                             googleMap.addMarker(MarkerOptions().position(latLng).title("Marker at ${"%.2f".format(totalDistanceMiles)} miles"))
-                            // Update last marker distance
+
                             lastMarkerDistanceMiles = totalDistanceMiles
                         }
                     }
-                    // Update previous location
                     previousLocation = location
 
-                    // Update UI to display distance in miles
                     val currentDistanceMiles = totalDistanceMeters * 0.000621371f
                     //findViewById<TextView>(R.id.textViewDistance).text = "Distance Traveled: ${"%.2f".format(currentDistanceMiles)} miles"
                     findViewById<TextView>(R.id.textViewDistance).text = "${"%.2f".format(currentDistanceMiles)} / $userDistance miles"
@@ -285,15 +283,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, SensorEventListene
                     val route = result.routes[0]
                     val routePoints = route.overviewPolyline.decodePath()
 
-                    // Adjust polyline color and width
+
                     val polylineOptions = PolylineOptions().addAll(routePoints.map { LatLng(it.lat, it.lng) })
-                        .color(Color.BLACK) // Set polyline color to red
-                        .width(100f) // Set polyline width to 10 pixels
+                        .color(Color.BLACK)
+                        .width(100f)
 
                     val polyline = googleMap.addPolyline(polylineOptions)
                     polylines.add(polyline)
 
-                    // Adjust camera to fit the bounds of the route
                     googleMap.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100))
                 }
 
